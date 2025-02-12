@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(HTTPServer)
+project(IPF)
 
 file(GLOB_RECURSE SRC_FILES src/*.c)
 
