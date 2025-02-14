@@ -53,6 +53,10 @@ void startThreads() {
     pthread_t th_out;
 
     pthread_create(&th_in, NULL, (void*) startForwardingToOut, NULL);
+    pthread_create(&th_out, NULL, (void*) startForwardingToIn, NULL);
+
+    pthread_join(th_in, NULL);
+    pthread_join(th_out, NULL);
 }
 
 int main() {

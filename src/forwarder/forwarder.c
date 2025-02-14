@@ -50,7 +50,6 @@ void startForwardingToIn() {
             perror("Error reading from fd_out");
             return;
         } else if (nbytes == 0) {
-            // End of file
             break;
         }
 
