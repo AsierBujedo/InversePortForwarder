@@ -11,14 +11,16 @@
 
 #define MAXBUFF 1024
 
-int* fd_in;
-int* fd_out;
+int *fd_in;
+int *fd_out;
+
+int *isAlive;
 
 void startForwardingToOut() {
     char buf[MAXBUFF];
     ssize_t nbytes;
 
-    while (1) {
+    while (*isAlive) {
         nbytes = read(*fd_in, buf, MAXBUFF);
         if (nbytes < 0) {
             perror("Error reading from fd_in");
@@ -44,7 +46,7 @@ void startForwardingToIn() {
     char buf[MAXBUFF];
     ssize_t nbytes;
 
-    while (1) {
+    while (*isAlive) {
         nbytes = read(*fd_out, buf, MAXBUFF);
         if (nbytes < 0) {
             perror("Error reading from fd_out");

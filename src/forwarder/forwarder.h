@@ -6,6 +6,8 @@
 extern int *fd_in;
 extern int *fd_out;
 
+extern int *isAlive;
+
 void startForwardingToOut();
 void startForwardingToIn();
 
