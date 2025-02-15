@@ -11,7 +11,7 @@
 
 #include "forwarder/forwarder.h"
 
-#define PORT 8000
+#define PORT 8080
 
 int *socket_in, *socket_out;
 
@@ -89,9 +89,9 @@ int main() {
     socket_out = malloc(sizeof(int));
 
     fd_in = openlsocket(socket_in, PORT);
+    printf("Connected to the app.\n");
     fd_out = openlsocket(socket_out, PORT + 1);
-
-    printf("%i, %i\n", *fd_in, *fd_out);
+    printf("Connected to the stream.\n");
 
     startThreads();
 
