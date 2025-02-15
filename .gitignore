@@ -1,2 +1,4 @@
-build/*
-/.vscode
+*/.vscode
+/SIPF/build
+/CIPF/build
+/build
