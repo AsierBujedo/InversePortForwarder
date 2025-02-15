@@ -1,5 +1,3 @@
-# This starter workflow is for a CMake project running on a single platform.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 name: CMake for CIPF and SIPF
 
 on:
@@ -17,14 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Build CIPF
+      working-directory: ${{ github.workspace }}/CIPF
       run: |
-        cmake -B ${{github.workspace}}/CIPF/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        cmake --build ${{github.workspace}}/CIPF/build --config ${{env.BUILD_TYPE}}
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        cmake --build build --config ${{ env.BUILD_TYPE }}
 
     - name: Build SIPF
+      working-directory: ${{ github.workspace }}/SIPF
       run: |
-        cmake -B ${{github.workspace}}/SIPF/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        cmake --build ${{github.workspace}}/SIPF/build --config ${{env.BUILD_TYPE}}
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        cmake --build build --config ${{ env.BUILD_TYPE }}
