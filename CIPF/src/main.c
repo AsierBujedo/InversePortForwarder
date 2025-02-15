@@ -57,6 +57,9 @@ void startThreads() {
     pthread_t th_in;
     pthread_t th_out;
 
+    isAlive = malloc(sizeof(int));
+    *isAlive = 1;
+
     pthread_create(&th_in, NULL, (void*) startForwardingToOut, NULL);
     pthread_create(&th_out, NULL, (void*) startForwardingToIn, NULL);
 
@@ -66,7 +69,7 @@ void startThreads() {
 
 int main(int argc, char* argv[]) {
 
-    unsigned int PORT = 8080;
+    int PORT = 8080;
     struct in_addr IP_ADD;
 
     if (argc == 3) {
@@ -91,19 +94,19 @@ int main(int argc, char* argv[]) {
 
     signal(SIGINT, handleInterrupt);
 
-    socket_app = malloc(sizeof(int));
-    socket_out = malloc(sizeof(int));
+    fd_app = malloc(sizeof(int));
+    fd_out = malloc(sizeof(int));
 
     uint16_t DPORT = DEST_PORT;
-    int res = opencsocket(socket_out, &DPORT, &IP_ADD.s_addr);
+    int res = opencsocket(fd_app, &DPORT, &IP_ADD.s_addr);
     if (res == 1) {
         perror("Could not connect to server. The connection with the app will not be established");
         exit(EXIT_FAILURE);
     }
 
-    uint32_t lo = LO_ADDR;
+    uint32_t lo = htonl(LO_ADDR);
     uint16_t APP_PORT = (uint16_t) PORT;
-    res = opencsocket(socket_app, &APP_PORT, &lo);
+    res = opencsocket(fd_out, &APP_PORT, &lo);
     if (res == 1) {
         perror("Could not connect to the app");
         exit(EXIT_FAILURE);

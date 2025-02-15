@@ -45,6 +45,8 @@ void startForwardingToOut() {
     char buf[MAXBUFF];
     ssize_t nbytes;
 
+    printf("The server is forwarding to outside. isAlive: %s\n", *isAlive ? "true" : "false");
+
     while (*isAlive) {
         nbytes = read(*fd_app, buf, MAXBUFF);
         if (nbytes < 0) {
@@ -70,6 +72,8 @@ void startForwardingToOut() {
 void startForwardingToIn() {
     char buf[MAXBUFF];
     ssize_t nbytes;
+
+    printf("The server is forwarding to the local client. isAlive: %s\n", *isAlive ? "true" : "false");
 
     while (*isAlive) {
         nbytes = read(*fd_out, buf, MAXBUFF);

@@ -11,7 +11,8 @@
 
 #include "forwarder/forwarder.h"
 
-#define PORT 8080
+#define PORT_IN (uint16_t) 0x1F90
+#define PORT_OUT (uint16_t) 0x1F91
 
 int *socket_in, *socket_out;
 
@@ -29,7 +30,10 @@ void handleInterrupt() {
     exit(EXIT_SUCCESS);
 }
 
-int* openlsocket(int *soc, int port) {
+int* openlsocket(uint16_t *port) {
+    
+    int *soc = malloc(sizeof(int));
+
     if ((*soc = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         fprintf(stderr, "Failed creating socket at %i\n", port);
         exit(EXIT_FAILURE);
@@ -40,7 +44,7 @@ int* openlsocket(int *soc, int port) {
     memset(&addr, 0, sizeof(struct sockaddr_in));
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(port);
+    addr.sin_port = htons(*port);
     
     socklen_t addrsize = sizeof(addr);
 
@@ -85,13 +89,15 @@ int main() {
 
     signal(SIGINT, handleInterrupt);
 
-    socket_in = malloc(sizeof(int));
-    socket_out = malloc(sizeof(int));
-
-    fd_in = openlsocket(socket_in, PORT);
-    printf("Connected to the app.\n");
-    fd_out = openlsocket(socket_out, PORT + 1);
+    // First, listen for to the client endpoint
+    uint16_t port_out = PORT_OUT;
+    fd_out = openlsocket(&port_out);
     printf("Connected to the stream.\n");
+
+    // Then, listen for the forwarded app
+    uint16_t port_in = PORT_IN; 
+    fd_in = openlsocket(&port_in);
+    printf("Connected to the app.\n");
 
     startThreads();
 
