@@ -78,10 +78,10 @@ void startThreads() {
         handleInterrupt();
     }
 
+    *isAlive = 1;
+
     pthread_create(&th_in, NULL, (void*) startForwardingToOut, NULL);
     pthread_create(&th_out, NULL, (void*) startForwardingToIn, NULL);
-
-    *isAlive = 1;
 
     pthread_join(th_in, NULL);
     pthread_join(th_out, NULL);

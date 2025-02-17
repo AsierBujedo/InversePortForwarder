@@ -66,10 +66,10 @@ void startThreads() {
         handleInterrupt();
     }
 
+    *isAlive = 1;
+
     pthread_create(&th_in, NULL, (void*) startForwardingToOut, NULL);
     pthread_create(&th_out, NULL, (void*) startForwardingToIn, NULL);
-
-    *isAlive = 1;
 
     pthread_join(th_in, NULL);
     pthread_join(th_out, NULL);
@@ -107,9 +107,10 @@ int main(int argc, char* argv[]) {
         perror("Failed allocating memory");
     }
     if( opencsocket(fd_app, DEST_PORT, IP_ADD.s_addr) == 0 ) {
-        perror("Could not connect to server. The connection with the app will not be established");
+        perror("Could not connect to the host app");
         exit(EXIT_FAILURE);
     }
+    printf("Connected to the host app.\n");
 
     fd_out = malloc(sizeof(int));
     if (fd_out == NULL) {
@@ -118,9 +119,9 @@ int main(int argc, char* argv[]) {
     uint32_t lo = htonl(LO_ADDR);
     uint16_t APP_PORT = (uint16_t) PORT;
     if( opencsocket(fd_out, APP_PORT, lo) == 0 ) {
-        perror("Could not connect to the app");
         exit(EXIT_FAILURE);
     }
+    printf("Connected to the remote host.\n");
 
     startThreads();
 

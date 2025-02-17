@@ -87,7 +87,7 @@ void startForwardingToIn() {
 
         ssize_t total_written = 0;
         while (total_written < nbytes) {
-            ssize_t written = write(*fd_app, buf + total_written, nbytes - total_written);
+            ssize_t written = send(*fd_app, buf + total_written, nbytes - total_written, 0);
             if (written < 0) {
                 perror("Error writing to fd_in");
                 return;

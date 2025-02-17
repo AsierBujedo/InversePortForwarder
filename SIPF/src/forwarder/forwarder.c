@@ -78,7 +78,7 @@ void startForwardingToOut() {
 
         ssize_t total_written = 0;
         while (total_written < nbytes) {
-            ssize_t written = write(*fd_out, buf + total_written, nbytes - total_written);
+            ssize_t written = send(*fd_out, buf + total_written, nbytes - total_written, 0);
             if (written < 0) {
                 perror("Error writing to fd_out");
                 return;
