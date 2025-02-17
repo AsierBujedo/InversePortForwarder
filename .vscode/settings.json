@@ -5,5 +5,8 @@
             "127.0.0.1",
             "25565"
         ]
+    },
+    "files.associations": {
+        "inet.h": "c"
     }
 }

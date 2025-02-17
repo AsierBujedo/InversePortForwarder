@@ -11,26 +11,32 @@
 
 #include "forwarder/forwarder.h"
 
-#define LO_ADDR (uint32_t) 0x7F000001 // IP 127.0.0.1
-#define DEST_PORT (uint16_t) 0x1F91 // PORT 8081
-
-int *socket_app, *socket_out;
+#define LO_ADDR (uint32_t) 0x7F000001 // 127.0.0.1
+#define DEST_PORT (uint16_t) 0x1F91 // 8081
 
 void handleInterrupt() {
-    isAlive = 0;
-
-    if (socket_app != NULL) {
-        close(*socket_app);
+    if(isAlive != NULL) {
+        *isAlive = 0;
+        free(isAlive);
     }
 
-    if (socket_out != NULL) {
-        close(*socket_out);
+    if(fd_app != NULL) {
+        close(*fd_app);
+        free(fd_app);
     }
 
-    exit(EXIT_SUCCESS);
+    if(fd_out != NULL) {
+        close(*fd_out);
+        free(fd_out);
+    }
+
+    exit(EXIT_FAILURE);
 }
 
-int opencsocket(int *soc, uint16_t *port, uint32_t *ip_addr) {
+int opencsocket(int *soc, uint16_t port, uint32_t ip_addr) {
+
+    soc = (int*) malloc(sizeof(int));
+
     if ((*soc = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Failed creating socket");
         exit(EXIT_FAILURE);
@@ -40,17 +46,16 @@ int opencsocket(int *soc, uint16_t *port, uint32_t *ip_addr) {
 
     memset(&addr, 0, sizeof(struct sockaddr_in));
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = *ip_addr;
-    addr.sin_port = htons(*port);
+    addr.sin_addr.s_addr = ip_addr;
+    addr.sin_port = htons(port);
 
     socklen_t addrsize = sizeof(addr);
 
     if (connect(*soc, (struct sockaddr*) &addr, addrsize) < 0) {
         perror("Failed creating a new connection");
-        return 1;
+        return 0;
     }
-
-    return 0;
+    return 1;
 }
 
 void startThreads() {
@@ -58,6 +63,11 @@ void startThreads() {
     pthread_t th_out;
 
     isAlive = malloc(sizeof(int));
+    if(isAlive == NULL) {
+        perror("Failed allocating memory");
+        handleInterrupt();
+    }
+
     *isAlive = 1;
 
     pthread_create(&th_in, NULL, (void*) startForwardingToOut, NULL);
@@ -69,7 +79,7 @@ void startThreads() {
 
 int main(int argc, char* argv[]) {
 
-    int PORT = 8080;
+    int PORT;
     struct in_addr IP_ADD;
 
     if (argc == 3) {
@@ -94,20 +104,14 @@ int main(int argc, char* argv[]) {
 
     signal(SIGINT, handleInterrupt);
 
-    fd_app = malloc(sizeof(int));
-    fd_out = malloc(sizeof(int));
-
-    uint16_t DPORT = DEST_PORT;
-    int res = opencsocket(fd_app, &DPORT, &IP_ADD.s_addr);
-    if (res == 1) {
+    if( opencsocket(fd_app, DEST_PORT, IP_ADD.s_addr) == 0 ) {
         perror("Could not connect to server. The connection with the app will not be established");
         exit(EXIT_FAILURE);
     }
 
     uint32_t lo = htonl(LO_ADDR);
     uint16_t APP_PORT = (uint16_t) PORT;
-    res = opencsocket(fd_out, &APP_PORT, &lo);
-    if (res == 1) {
+    if( opencsocket(fd_out, APP_PORT, lo) == 0 ) {
         perror("Could not connect to the app");
         exit(EXIT_FAILURE);
     }

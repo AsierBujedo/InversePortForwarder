@@ -41,6 +41,7 @@ void startForwardingToIn();
 #include <stdio.h>
 #include <unistd.h>
 
+#include <sys/socket.h>
 #include <sys/ioctl.h>
 
 #include "forwarder.h"
@@ -56,22 +57,22 @@ void startForwardingToOut() {
     char buf[MAXBUFF];
     ssize_t nbytes;
 
-    printf("The server is forwarding to outside. isAlive: %i\n", *isAlive);
-
     while (*isAlive) {
-        nbytes = read(*fd_in, buf, MAXBUFF);
-        printf("Bytes read (from in): %i\n", nbytes);
+        nbytes = recv(*fd_in, buf, MAXBUFF, 0);
         if (nbytes < 0) {
             perror("Error reading from fd_in");
+            *isAlive = 0;
             return;
         } else if (nbytes == 0) {
-            // End of file
+            printf("Connection ended.\n");
+            *isAlive = 0;
             break;
         }
 
         ssize_t total_written = 0;
         while (total_written < nbytes) {
             ssize_t written = write(*fd_out, buf + total_written, nbytes - total_written);
+            printf("Written %i", written);
             if (written < 0) {
                 perror("Error writing to fd_out");
                 return;
@@ -85,15 +86,15 @@ void startForwardingToIn() {
     char buf[MAXBUFF];
     ssize_t nbytes;
 
-    printf("The server is forwarding to the local client. isAlive: %i\n", *isAlive);
-
     while (*isAlive) {
-        nbytes = read(*fd_out, buf, MAXBUFF);
-        printf("Bytes read (from out): %i\n", nbytes);
+        nbytes = recv(*fd_out, buf, MAXBUFF, 0);
         if (nbytes < 0) {
             perror("Error reading from fd_out");
+            *isAlive = 0;
             return;
         } else if (nbytes == 0) {
+            printf("Connection ended.\n");
+            *isAlive = 0;
             break;
         }
 
