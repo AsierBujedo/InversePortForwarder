@@ -1,5 +1,5 @@
 {
-    "cmake.sourceDirectory": "/home/asierbu/Documentos/GitHub/InversePortForwarder/CIPF",
+    "cmake.sourceDirectory": "/home/asierbu/Documentos/GitHub/InversePortForwarder",
     "cmake.debugConfig": {
         "args": [
             "127.0.0.1",

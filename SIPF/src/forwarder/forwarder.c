@@ -57,6 +57,13 @@ void startForwardingToOut() {
     char buf[MAXBUFF];
     ssize_t nbytes;
 
+    if (isAlive == NULL) {
+        printf("isAlive is NULL!\n");
+    }
+    if (fd_in == NULL) {
+        printf("fd_in is NULL!\n");
+    }
+
     while (*isAlive) {
         nbytes = recv(*fd_in, buf, MAXBUFF, 0);
         if (nbytes < 0) {

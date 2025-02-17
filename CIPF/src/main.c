@@ -35,8 +35,6 @@ void handleInterrupt() {
 
 int opencsocket(int *soc, uint16_t port, uint32_t ip_addr) {
 
-    soc = (int*) malloc(sizeof(int));
-
     if ((*soc = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Failed creating socket");
         exit(EXIT_FAILURE);
@@ -68,10 +66,10 @@ void startThreads() {
         handleInterrupt();
     }
 
-    *isAlive = 1;
-
     pthread_create(&th_in, NULL, (void*) startForwardingToOut, NULL);
     pthread_create(&th_out, NULL, (void*) startForwardingToIn, NULL);
+
+    *isAlive = 1;
 
     pthread_join(th_in, NULL);
     pthread_join(th_out, NULL);
@@ -104,11 +102,19 @@ int main(int argc, char* argv[]) {
 
     signal(SIGINT, handleInterrupt);
 
+    fd_app = malloc(sizeof(int));
+    if (fd_app == NULL) {
+        perror("Failed allocating memory");
+    }
     if( opencsocket(fd_app, DEST_PORT, IP_ADD.s_addr) == 0 ) {
         perror("Could not connect to server. The connection with the app will not be established");
         exit(EXIT_FAILURE);
     }
 
+    fd_out = malloc(sizeof(int));
+    if (fd_out == NULL) {
+        perror("Failed allocating memory");
+    }
     uint32_t lo = htonl(LO_ADDR);
     uint16_t APP_PORT = (uint16_t) PORT;
     if( opencsocket(fd_out, APP_PORT, lo) == 0 ) {

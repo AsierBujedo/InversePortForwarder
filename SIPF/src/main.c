@@ -62,7 +62,6 @@ int openlsocket(int *fd, uint16_t port) {
 
     int conn_s;
     if ( (conn_s = accept(soc, (struct sockaddr*) &addr, (socklen_t*) &addrsize)) > 0) {
-        fd = malloc(sizeof(int));
         *fd = conn_s;
         return 0;
     }
@@ -78,10 +77,11 @@ void startThreads() {
         perror("Failed allocating memory");
         handleInterrupt();
     }
-    *isAlive = 1;
 
     pthread_create(&th_in, NULL, (void*) startForwardingToOut, NULL);
     pthread_create(&th_out, NULL, (void*) startForwardingToIn, NULL);
+
+    *isAlive = 1;
 
     pthread_join(th_in, NULL);
     pthread_join(th_out, NULL);
@@ -92,11 +92,19 @@ int main() {
     signal(SIGINT, handleInterrupt);
 
     // First, listen for to the client endpoint
+    fd_out = malloc(sizeof(int));
+    if (fd_out == NULL) {
+        perror("Failed allocating memory");
+    }
     if( openlsocket(fd_out, (uint16_t) PORT_OUT) == 0 ) {
         printf("Connected to the stream.\n");
     }
 
     // Then, listen for the forwarded app
+    fd_in = malloc(sizeof(int));
+    if (fd_in == NULL) {
+        perror("Failed allocating memory");
+    }
     if( openlsocket(fd_in, (uint16_t) PORT_IN) == 0) {
     printf("Connected to the app.\n");
     }
